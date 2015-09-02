@@ -1,0 +1,14 @@
+CACHE MANIFEST
+# 2015-08-27 - update 1
+index.html
+download.js
+jszip.min.js
+libunrar.js
+Promise.min.js
+rpc.js
+worker.js
+libunrar.js.mem
+
+# Use from network if available
+NETWORK:
+*

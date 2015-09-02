@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html  manifest="page.appcache">
+  <head>
+    <title>Unrar</title>
+	<meta name="viewport" content="width=device-width"/>
+  </head>
+  <body>
+    <h1>Unrar</h1>
+    <div id="loadStatus">Loading....</div>
+    <div id="drop-zone">Drop RAR file(s) here</div><br>
+	Or select from here: <input type="file" id="file" name="file" multiple/><br><br>
+    Password: <input id="password"/><br>
+	<button id="unrarBtn">Unrar</button>
+    
+    <div id="output">
+      <ul></ul>
+    </div>
+
+    <style>
+      #drop-zone {
+      border: 2px dashed rgb(187, 187, 187);
+      border-radius: 5px 5px 5px 5px;
+      padding: 50px;
+      text-align: center;
+      color: rgb(87, 87, 87);
+      }
+    </style>
+	<!--polyfill for IE and older browser-->
+	<script src="Promise.min.js"></script>
+	<script src="download.js"></script>
+	
+	<script src="jszip.min.js"></script>
+	<script src="rpc.js"></script>
+<script>
+"use strict";
+
+var startTime
+var filesToUnrar = []
+
+var loaded = function() {
+	document.querySelector("#loadStatus").innerHTML = "Finish loading"
+}
+
+var progressShow = function(fileName, fileSize, progress) {
+	document.querySelector("#loadStatus").innerHTML = fileName + ' (' + (100 * progress / fileSize).toFixed(2) + '%)'
+}
+
+var errShow = function(errMsg) {
+	document.querySelector("#loadStatus").innerHTML = "<strong>" + errMsg + "</strong>"
+}
+
+var startUnrar = function(){
+
+	// sort by name
+	filesToUnrar.sort(function(a, b){
+		if(a.name > b.name) return 1
+		else if(a.name < b.name) return -1
+		else return 0
+	})
+
+	var buffers = []
+	var dataToPass = []
+	
+	var reader = new FileReader();
+	reader.onload = callback
+	
+	function callback(e) {
+		var data = e.target.result;
+		buffers.push(data)
+		dataToPass.push({name: filesToUnrar[cnt].name, content: data})
+		cnt += 1
+		if(cnt < filesToUnrar.length) {
+			//continue reading the next vol
+			document.querySelector("#loadStatus").innerHTML = "reading your file "+filesToUnrar[cnt].name
+			reader.readAsArrayBuffer(filesToUnrar[cnt]);
+			return
+		}
+		
+		// all files finish reading
+		document.querySelector("#loadStatus").innerHTML = "finish reading files, start decompressing"
+		var password = document.querySelector("#password").value || null
+		startTime = Date.now()
+
+		//worker.postMessage({data: data, password: password}, [data]) //transferable object
+		document.querySelector("#loadStatus").innerHTML = "decompressing"
+		rpc.transferables = buffers
+		rpc.unrar(dataToPass, password).then(function(ret){
+			document.querySelector("#loadStatus").innerHTML = "Finish decompression, used " + ((Date.now() - startTime) / 1000).toFixed(2) + " s"
+			console.log(ret)
+
+			var rootListElem = document.querySelector("#output ul")
+			rootListElem.innerHTML = "" //clear
+
+			var filesOnly = []
+			
+			var rec = function(key, entry) {
+				var li = document.createElement("li")
+				if (entry.type === 'dir') {
+					var ul = document.createElement('ul')
+					Object.keys(entry.ls).forEach(function(k) {
+						ul.appendChild(rec(k, entry.ls[k]))
+					})
+					li.appendChild(document.createTextNode(key))
+					li.appendChild(ul)
+				} else if (entry.type === 'file') {
+					filesOnly.push(entry)
+					
+					var a = document.createElement('a')
+					a.appendChild(document.createTextNode(entry.fullFileName))
+					var fn = entry.fullFileName.split('/').pop()
+					a.download = fn
+
+					var blob = new Blob([entry.fileContent]);
+					var url = URL.createObjectURL(blob);
+					a.href = url
+
+					a.addEventListener('click', function(evt) {
+						evt.preventDefault()
+						download(blob, fn)
+					})
+					var span = document.createElement('span')
+					span.appendChild(document.createTextNode('  File Size:  ' + entry.fileSize))
+					li.appendChild(a)
+					li.appendChild(span)
+				} else {
+					throw "unknown type"
+				}
+
+				return li
+			}
+
+			Object.keys(ret.ls).forEach(function(k) {
+				rootListElem.appendChild(rec(k, ret.ls[k]))
+			})
+			
+			if(filesOnly.length > 1){
+				var lida = document.createElement('li')
+				var ada = document.createElement('a')
+				ada.appendChild(document.createTextNode("Download All as zip file"))
+				ada.href = '#'
+				ada.addEventListener('click', function(evt){
+					evt.preventDefault()
+					try {
+						var zip = new JSZip();
+						filesOnly.forEach(function(e) {
+							zip.file(e.fullFileName, e.fileContent)
+						})
+						
+						var content = zip.generate({type:"blob"});
+						// see FileSaver.js
+						download(content, "all.zip");
+					} catch(e) {
+						alert(e.toString())
+					}
+				})
+				lida.appendChild(ada)
+				rootListElem.appendChild(lida)
+			}
+		}).catch(errShow)
+	};
+	
+	var cnt = 0
+	if(filesToUnrar.length > 0){
+		document.querySelector("#loadStatus").innerHTML = "reading your file "+filesToUnrar[cnt].name
+		reader.readAsArrayBuffer(filesToUnrar[cnt]);
+	} else {
+		errShow("No file selected")
+	}
+
+}
+
+var rpc
+var so = {loaded:loaded, progressShow:progressShow}
+RPC.new("./worker.js", so).then(function(r) {
+	rpc = r
+})
+
+var dropzone = document.querySelector('#drop-zone');
+dropzone.addEventListener('dragover', function(event) {
+	//var event = jqEvent.originalEvent;
+	event.stopPropagation();
+	event.preventDefault();
+	event.dataTransfer.dropEffect = 'copy';
+	return false
+});
+dropzone.addEventListener('dragend', function(event) {
+
+	event.stopPropagation();
+	event.preventDefault();
+	return false
+})
+dropzone.addEventListener('drop', function(event) {
+
+	//var event = jqEvent.originalEvent;
+	event.stopPropagation();
+	event.preventDefault();
+	var files = event.dataTransfer.files
+	if (files.length === 0) {
+		return false;
+	}
+	
+	// we want array not file list
+	filesToUnrar = []
+	for(var i = 0; i < files.length; i++){
+		filesToUnrar.push(files[i])
+	}
+	//filesToUnrar = files
+	
+	document.querySelector("#loadStatus").innerHTML = "Selected "+filesToUnrar[0].name
+	startUnrar()
+	return false
+});
+
+var setFileBtn = function(evt){
+	var files = evt.target.files;
+	if(files.length === 0) return
+	// we want array not file list
+	filesToUnrar = []
+	for(var i = 0; i < files.length; i++){
+		filesToUnrar.push(files[i])
+	}
+	//filesToUnrar = files
+	document.querySelector("#loadStatus").innerHTML = "Click the unrar button"
+}
+document.getElementById('file').addEventListener('change', setFileBtn, false);
+document.getElementById('unrarBtn').addEventListener('click', startUnrar, false);
+</script>
+</body>
+</html>
