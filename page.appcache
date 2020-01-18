@@ -7,7 +7,7 @@ libunrar.js
 Promise.min.js
 rpc.js
 worker.js
-libunrar.js.mem
+libunrar.wasm
 
 # Use from network if available
 NETWORK:
