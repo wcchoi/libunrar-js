@@ -3,12 +3,19 @@ libunrar.js
 
 Emscripten port of RARLab's open-source unrar library
 
+# Changes
+Compiled with unrar v5.8.5, support RAR 5 format.
+
 # How to use
 1. Visit http://wcchoi.github.io/libunrar-js/
 2. Drag the RAR file to the box or select from the file chooser then click **Unrar**. 
 3. For multi-part RAR, drag/select ALL the parts (part1.rar to partN.rar). 
 4. If you get a password error, fill in the password then click **Unrar**. 
 5. Wait for the decompression to complete and click on the file name to download the decompressed content.
+
+In code:
+  Include libunrar.js, also need libunrar.wasm.
+  const result = readRARContent([{name: filename, content: Uint8Array} , ...], [password]);
 
 # Caveat
 1. Everything is loaded to the memory so make sure you have enough free memory to hold BOTH the RAR file AND the decompressed content (although only the decompressed content will keep in memory after decompression) , otherwise your browser page may crash.
