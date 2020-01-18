@@ -56,7 +56,7 @@ threadpool.cpp rs16.cpp cmddata.cpp ui.cpp filestr.cpp scantree.cpp dll.cpp qope
 cat pre.js libunrar.js wcchoi.js > res.js \
 mv res.js libunrar.js -f
 
-use  libunrar.js & libunrar.wasm
+8. use  libunrar.js & libunrar.wasm
 
 # Licence
 MIT, also see license.txt for the C code's license
