@@ -13,10 +13,6 @@ Compiled with unrar v5.8.5, support RAR 5 format.
 4. If you get a password error, fill in the password then click **Unrar**. 
 5. Wait for the decompression to complete and click on the file name to download the decompressed content.
 
-In code:
-  Include libunrar.js, also need libunrar.wasm.
-  const result = readRARContent([{name: filename, content: Uint8Array} , ...], [password]);
-
 # Caveat
 1. Everything is loaded to the memory so make sure you have enough free memory to hold BOTH the RAR file AND the decompressed content (although only the decompressed content will keep in memory after decompression) , otherwise your browser page may crash.
 2. Slow, especially for password-protected RAR
@@ -28,7 +24,10 @@ If you are in node.js environment then this is probably useless for you because 
 Tested on latest version of Chrome(chromebook, PC, android), though it also somehow works in IE11(desktop). Not tested on other browsers.
 
 # How to use the code
-Load libunrar.js in a web-worker and call *readRARContent* function, read the source code for parameter/return value. Also read worker.js, index.html for usage example.
+Include libunrar.js, also need libunrar.wasm.
+call *readRARContent* function
+const result = readRARContent([{name: filename, content: Uint8Array} , ...], [password]);
+result will contain unpacked content
 
 # Licence
 MIT, also see license.txt for the C code's license
