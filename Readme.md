@@ -58,7 +58,6 @@ mv res.js libunrar.js -f
 
 use  libunrar.js & libunrar.wasm
 
-
 # Licence
 MIT, also see license.txt for the C code's license
 
