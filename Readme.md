@@ -41,8 +41,7 @@ source ./emsdk_env.sh
 python /home/kol/emsdk/upstream/emscripten/tools/webidl_binder.py gluei.idl glue
 5. attach _.js content to the end of glue.js. Rmove from glue.cpp functions that already defined in glue_wrapper.cpp
 
-6. compile
-
+6. compile \
 emcc glue_wrapper.cpp rar.cpp strlist.cpp strfn.cpp pathfn.cpp smallfn.cpp global.cpp file.cpp filefn.cpp filcreat.cpp \
 archive.cpp arcread.cpp unicode.cpp system.cpp isnt.cpp crypt.cpp crc.cpp rawread.cpp encname.cpp resource.cpp \
 match.cpp timefn.cpp rdwrfn.cpp consio.cpp options.cpp errhnd.cpp rarvm.cpp secpassword.cpp rijndael.cpp getbits.cpp \
@@ -53,8 +52,8 @@ threadpool.cpp rs16.cpp cmddata.cpp ui.cpp filestr.cpp scantree.cpp dll.cpp qope
 -o libunrar.js  --post-js glue.js -DRARDLL -s RESERVED_FUNCTION_POINTERS=20 -s NO_EXIT_RUNTIME=1  \
 -O3 -s WASM=1 -Wno-dangling-else --closure 1
 
-7. resulting libunrar.js wil contain:  pre.js + libunrar.js + (glue.js + _.js) + wcchoi.js
-cat pre.js libunrar.js wcchoi.js > res.js
+7. resulting libunrar.js wil contain:  pre.js + libunrar.js + (glue.js + _.js) + wcchoi.js \
+cat pre.js libunrar.js wcchoi.js > res.js \
 mv res.js libunrar.js -f
 
 use  libunrar.js & libunrar.wasm
