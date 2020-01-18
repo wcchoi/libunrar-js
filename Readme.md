@@ -24,9 +24,9 @@ If you are in node.js environment then this is probably useless for you because 
 Tested on latest version of Chrome(chromebook, PC, android), though it also somehow works in IE11(desktop). Not tested on other browsers.
 
 # How to use the code
-Include libunrar.js, also need libunrar.wasm.
-call *readRARContent* function
-const result = readRARContent([{name: filename, content: Uint8Array} , ...], [password]);
+Include libunrar.js, also need libunrar.wasm. \
+call *readRARContent* function \
+const result = readRARContent([{name: filename, content: Uint8Array} , ...], [password]);\
 result will contain unpacked content
 
 # How to Compile
