@@ -50,7 +50,9 @@ threadpool.cpp rs16.cpp cmddata.cpp ui.cpp filestr.cpp scantree.cpp dll.cpp qope
 -s "EXPORTED_FUNCTIONS=['_RAROpenArchiveEx','_RARCloseArchive','_RARReadHeaderEx','_RARProcessFileW', '_RARSetPassword']" \
 -s EXTRA_EXPORTED_RUNTIME_METHODS=['getPointer','addFunction','removeFunction','FS','ensureString','UTF8ToString'] \
 -o libunrar.js  --post-js glue.js -DRARDLL -s RESERVED_FUNCTION_POINTERS=20 -s NO_EXIT_RUNTIME=1  \
--O3 -s WASM=1 -Wno-dangling-else --closure 1
+-O3 -s WASM=1 -Wno-dangling-else --closure 1 /
+/
+//-s ALLOW_MEMORY_GROWTH=1 (for big archives)
 
 7. resulting libunrar.js wil contain:  pre.js + libunrar.js + (glue.js + _.js) + wcchoi.js \
 cat pre.js libunrar.js wcchoi.js > res.js \
