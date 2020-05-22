@@ -38,8 +38,9 @@ source ./emsdk_env.sh
 3. Unpack src/unrarsrc-5.8.5.tar.gz(original unrar sources) and add files from src folder. Two files (dll.hpp, uowners.cpp) was changed.
 
 4. generate glue.js & glue.cpp from gluei.idl \
-python ~/emsdk/upstream/emscripten/tools/webidl_binder.py gluei.idl glue \
-5. attach _.js content to the end of glue.js. Rmove from glue.cpp functions that already defined in glue_wrapper.cpp \
+python ~/emsdk/upstream/emscripten/tools/webidl_binder.py gluei.idl glue
+
+5. attach _.js content to the end of glue.js. Rmove from glue.cpp functions that already defined in glue_wrapper.cpp
 
 6. compile \
 emcc glue_wrapper.cpp rar.cpp strlist.cpp strfn.cpp pathfn.cpp smallfn.cpp global.cpp file.cpp filefn.cpp filcreat.cpp \
