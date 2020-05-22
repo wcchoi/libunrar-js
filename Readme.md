@@ -39,7 +39,7 @@ source ./emsdk_env.sh
 
 4. generate glue.js & glue.cpp from gluei.idl \
 python ~/emsdk/upstream/emscripten/tools/webidl_binder.py gluei.idl glue \
-5. attach _.js content to the end of glue.js. Rmove from glue.cpp functions that already defined in glue_wrapper.cpp
+5. attach _.js content to the end of glue.js. Rmove from glue.cpp functions that already defined in glue_wrapper.cpp \
 
 6. compile \
 emcc glue_wrapper.cpp rar.cpp strlist.cpp strfn.cpp pathfn.cpp smallfn.cpp global.cpp file.cpp filefn.cpp filcreat.cpp \
@@ -50,7 +50,7 @@ threadpool.cpp rs16.cpp cmddata.cpp ui.cpp filestr.cpp scantree.cpp dll.cpp qope
 -s "EXPORTED_FUNCTIONS=['_RAROpenArchiveEx','_RARCloseArchive','_RARReadHeaderEx','_RARProcessFileW', '_RARSetPassword']" \
 -s EXTRA_EXPORTED_RUNTIME_METHODS=['getPointer','addFunction','removeFunction','FS','ensureString','UTF8ToString'] \
 -o libunrar.js  --post-js glue.js -DRARDLL -s RESERVED_FUNCTION_POINTERS=20 -s NO_EXIT_RUNTIME=1  \
--O3 -s WASM=1 -Wno-dangling-else --closure 1 /
+-O3 -s WASM=1 -Wno-dangling-else --closure 1 \
 \
 \
 //-s ALLOW_MEMORY_GROWTH=1 (for big archives)
