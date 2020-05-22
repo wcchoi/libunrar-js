@@ -32,13 +32,13 @@ result will contain unpacked content
 # How to Compile
 1. Install emscripten   https://emscripten.org/docs/getting_started/downloads.html
 
-2. Activate PATH and other environment variables in the current terminal /\
+2. Activate PATH and other environment variables in the current terminal \
 source ./emsdk_env.sh
 
 3. Unpack src/unrarsrc-5.8.5.tar.gz(original unrar sources) and add files from src folder. Two files (dll.hpp, uowners.cpp) was changed.
 
 4. generate glue.js & glue.cpp from gluei.idl \
-python /home/kol/emsdk/upstream/emscripten/tools/webidl_binder.py gluei.idl glue \
+python ~/emsdk/upstream/emscripten/tools/webidl_binder.py gluei.idl glue \
 5. attach _.js content to the end of glue.js. Rmove from glue.cpp functions that already defined in glue_wrapper.cpp
 
 6. compile \
