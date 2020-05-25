@@ -29,10 +29,10 @@ Tested on latest version of Chrome(chromebook, PC, android), though it also some
 Include libunrar.js, also need libunrar.wasm. \
 
 call readRARContent or readRARContentWorkerFS function \
- @param data: Array of {name:filename in string, content: UTF8string|ArrayBufferView for non WorkerFS version, or File|Blob for WorkerFS version}
- In case of single RAR archive, data = [
- {name: 'test.rar', content: content of test.rar}
- ]
+ @param data: Array of {name:filename in string, content: UTF8string|ArrayBufferView for non WorkerFS version, or File|Blob for WorkerFS version} \
+ In case of single RAR archive, data = [ \
+ {name: 'test.rar', content: content of test.rar} \
+ ] 
  In case of multi-part RAR, it would be like this:
  [
  {name: 'test.part1.rar', content: content of test.part1.rar},
@@ -67,7 +67,7 @@ python ~/emsdk/upstream/emscripten/tools/webidl_binder.py gluei.idl glue
 5. attach _.js content to the end of glue.js. Rmove from glue.cpp functions that already defined in glue_wrapper.cpp
 
 6. compile \
-cat glue.js _.js > glue_r.js
+cat glue.js _.js > glue_r.js \
 emcc glue_wrapper.cpp rar.cpp strlist.cpp strfn.cpp pathfn.cpp smallfn.cpp global.cpp file.cpp filefn.cpp filcreat.cpp \
 archive.cpp arcread.cpp unicode.cpp system.cpp isnt.cpp crypt.cpp crc.cpp rawread.cpp encname.cpp resource.cpp \
 match.cpp timefn.cpp rdwrfn.cpp consio.cpp options.cpp errhnd.cpp rarvm.cpp secpassword.cpp rijndael.cpp getbits.cpp \
@@ -77,9 +77,9 @@ threadpool.cpp rs16.cpp cmddata.cpp ui.cpp filestr.cpp scantree.cpp dll.cpp qope
 -s EXTRA_EXPORTED_RUNTIME_METHODS=['addFunction','removeFunction','FS','UTF8ToString','stringToUTF8','ensureString','WORKERFS','mount','unmount'] \
 -o libunrar.js  --post-js glue_r.js -DRARDLL -s RESERVED_FUNCTION_POINTERS=20 -s NO_EXIT_RUNTIME=1  \
 -O3 -s ALLOW_MEMORY_GROWTH=1 --closure 1 -s ASSERTIONS=0 \
--s WASM=1 -Wno-dangling-else -s FORCE_FILESYSTEM=1 -lworkerfs.js
-cat pre.js libunrar.js wcchoi.js > res.js
-mv res.js libunrar.js -f
+-s WASM=1 -Wno-dangling-else -s FORCE_FILESYSTEM=1 -lworkerfs.js \
+cat pre.js libunrar.js wcchoi.js > res.js \
+mv res.js libunrar.js -f \
 \
 \
 //-s ALLOW_MEMORY_GROWTH=1 (for big archives)
