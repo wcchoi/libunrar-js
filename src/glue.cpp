@@ -26,12 +26,20 @@ RARHeaderDataEx* EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_RARHeaderD
 //  self->FileNameW = arg0;
 //}
 
-unsigned int EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_get_UnpSize_0(RARHeaderDataEx* self) {
-  return self->UnpSize;
+//long long EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_get_UnpSize_0(RARHeaderDataEx* self) {
+//  return self->UnpSize;
+//}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_set_UnpSize_1(RARHeaderDataEx* self, long long arg0) {
+  self->UnpSize = arg0;
 }
 
-void EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_set_UnpSize_1(RARHeaderDataEx* self, unsigned int arg0) {
-  self->UnpSize = arg0;
+//long long EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_get_PackSize_0(RARHeaderDataEx* self) {
+//  return self->PackSize;
+//}
+
+void EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_set_PackSize_1(RARHeaderDataEx* self, long long arg0) {
+  self->PackSize = arg0;
 }
 
 unsigned int EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_get_Flags_0(RARHeaderDataEx* self) {

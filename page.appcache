@@ -1,5 +1,10 @@
 CACHE MANIFEST
-# 2020-01-18 - update 1
+
+
+
+# Use from network if available
+NETWORK:
+
 index.html
 download.js
 jszip.min.js
@@ -9,6 +14,6 @@ rpc.js
 worker.js
 libunrar.wasm
 
-# Use from network if available
-NETWORK:
 *
+
+

@@ -5,6 +5,7 @@ Emscripten port of RARLab's open-source unrar library
 
 # Changes
 Compiled with unrar v5.8.5, support RAR 5 format.
+Added WorkerFS version.
 
 # How to use
 1. Visit http://wcchoi.github.io/libunrar-js/
@@ -14,7 +15,8 @@ Compiled with unrar v5.8.5, support RAR 5 format.
 5. Wait for the decompression to complete and click on the file name to download the decompressed content.
 
 # Caveat
-1. Everything is loaded to the memory so make sure you have enough free memory to hold BOTH the RAR file AND the decompressed content (although only the decompressed content will keep in memory after decompression) , otherwise your browser page may crash.
+1. For non WorkerFS version everything is loaded to the memory so make sure you have enough free memory to hold BOTH the RAR file AND the decompressed content (although only the decompressed content will keep in memory after decompression) , otherwise your browser page may crash.
+2. WorkerFS version 15x time slower with many small files.
 2. Slow, especially for password-protected RAR
 3. Memory leak in IE, no problem in Chrome
 
@@ -25,9 +27,31 @@ Tested on latest version of Chrome(chromebook, PC, android), though it also some
 
 # How to use the code
 Include libunrar.js, also need libunrar.wasm. \
-call *readRARContent* function \
-const result = readRARContent([{name: filename, content: Uint8Array} , ...], [password]);\
-result will contain unpacked content
+
+call readRARContent or readRARContentWorkerFS function \
+ @param data: Array of {name:filename in string, content: UTF8string|ArrayBufferView for non WorkerFS version, or File|Blob for WorkerFS version}
+ In case of single RAR archive, data = [
+ {name: 'test.rar', content: content of test.rar}
+ ]
+ In case of multi-part RAR, it would be like this:
+ [
+ {name: 'test.part1.rar', content: content of test.part1.rar},
+ ...
+ {name: 'test.partN.rar', content: content of test.partN.rar}
+ ]
+ @param password: string
+ @param callbackFn: function(currFileName, currFileSize, currProcessed)
+ It is used to show progress(of a single file only, whole archive progress not implemented)
+
+ Result is an array of JS Object representing RAR archive content
+ @fullFileName "full file name including the directory path"
+ @is_file true -file, false-directory
+ @name "FileName"
+ @readData Uint8Array or promise returning Uint8Array
+ @size_compressed
+ @size_uncompressed
+
+
 
 # How to Compile
 1. Install emscripten   https://emscripten.org/docs/getting_started/downloads.html
@@ -43,15 +67,19 @@ python ~/emsdk/upstream/emscripten/tools/webidl_binder.py gluei.idl glue
 5. attach _.js content to the end of glue.js. Rmove from glue.cpp functions that already defined in glue_wrapper.cpp
 
 6. compile \
+cat glue.js _.js > glue_r.js
 emcc glue_wrapper.cpp rar.cpp strlist.cpp strfn.cpp pathfn.cpp smallfn.cpp global.cpp file.cpp filefn.cpp filcreat.cpp \
 archive.cpp arcread.cpp unicode.cpp system.cpp isnt.cpp crypt.cpp crc.cpp rawread.cpp encname.cpp resource.cpp \
 match.cpp timefn.cpp rdwrfn.cpp consio.cpp options.cpp errhnd.cpp rarvm.cpp secpassword.cpp rijndael.cpp getbits.cpp \
 sha1.cpp sha256.cpp blake2s.cpp hash.cpp extinfo.cpp extract.cpp volume.cpp list.cpp find.cpp unpack.cpp headers.cpp \
 threadpool.cpp rs16.cpp cmddata.cpp ui.cpp filestr.cpp scantree.cpp dll.cpp qopen.cpp \
 -s "EXPORTED_FUNCTIONS=['_RAROpenArchiveEx','_RARCloseArchive','_RARReadHeaderEx','_RARProcessFileW', '_RARSetPassword']" \
--s EXTRA_EXPORTED_RUNTIME_METHODS=['getPointer','addFunction','removeFunction','FS','ensureString','UTF8ToString'] \
--o libunrar.js  --post-js glue.js -DRARDLL -s RESERVED_FUNCTION_POINTERS=20 -s NO_EXIT_RUNTIME=1  \
--O3 -s WASM=1 -Wno-dangling-else --closure 1 \
+-s EXTRA_EXPORTED_RUNTIME_METHODS=['addFunction','removeFunction','FS','UTF8ToString','stringToUTF8','ensureString','WORKERFS','mount','unmount'] \
+-o libunrar.js  --post-js glue_r.js -DRARDLL -s RESERVED_FUNCTION_POINTERS=20 -s NO_EXIT_RUNTIME=1  \
+-O3 -s ALLOW_MEMORY_GROWTH=1 --closure 1 -s ASSERTIONS=0 \
+-s WASM=1 -Wno-dangling-else -s FORCE_FILESYSTEM=1 -lworkerfs.js
+cat pre.js libunrar.js wcchoi.js > res.js
+mv res.js libunrar.js -f
 \
 \
 //-s ALLOW_MEMORY_GROWTH=1 (for big archives)

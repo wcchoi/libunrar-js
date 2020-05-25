@@ -14,6 +14,12 @@ void EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_set_FileNameW_1(RARHea
 //  self->FileNameW = arg0;
 }
 
+long long EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_get_UnpSize_0(RARHeaderDataEx* self) {
+  return  (long long) self->UnpSizeHigh << 32 | self->UnpSize;
+}
 
+long long EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_get_PackSize_0(RARHeaderDataEx* self) {
+  return (long long) self->PackSizeHigh << 32 | self->PackSize; 
+}
 
 }

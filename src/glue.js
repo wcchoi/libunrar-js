@@ -201,6 +201,16 @@ Module['RARHeaderDataEx'] = RARHeaderDataEx;
   _emscripten_bind_RARHeaderDataEx_set_UnpSize_1(self, arg0);
 };
     Object.defineProperty(RARHeaderDataEx.prototype, 'UnpSize', { get: RARHeaderDataEx.prototype.get_UnpSize, set: RARHeaderDataEx.prototype.set_UnpSize });
+  RARHeaderDataEx.prototype['get_PackSize'] = RARHeaderDataEx.prototype.get_PackSize = /** @suppress {undefinedVars, duplicate} */function() {
+  var self = this.ptr;
+  return _emscripten_bind_RARHeaderDataEx_get_PackSize_0(self);
+};
+    RARHeaderDataEx.prototype['set_PackSize'] = RARHeaderDataEx.prototype.set_PackSize = /** @suppress {undefinedVars, duplicate} */function(arg0) {
+  var self = this.ptr;
+  if (arg0 && typeof arg0 === 'object') arg0 = arg0.ptr;
+  _emscripten_bind_RARHeaderDataEx_set_PackSize_1(self, arg0);
+};
+    Object.defineProperty(RARHeaderDataEx.prototype, 'PackSize', { get: RARHeaderDataEx.prototype.get_PackSize, set: RARHeaderDataEx.prototype.set_PackSize });
   RARHeaderDataEx.prototype['get_Flags'] = RARHeaderDataEx.prototype.get_Flags = /** @suppress {undefinedVars, duplicate} */function() {
   var self = this.ptr;
   return _emscripten_bind_RARHeaderDataEx_get_Flags_0(self);
@@ -302,4 +312,3 @@ Module['VoidPtr'] = VoidPtr;
   else addOnPreMain(setupEnums);
 })();
 
-Module['ensureString']=ensureString;
