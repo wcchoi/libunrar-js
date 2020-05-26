@@ -1,4 +1,4 @@
-
+new_wasm
 libunrar.js  
 ===========  
   
