@@ -1,12 +1,12 @@
-new_wasm
 libunrar.js  
 ===========  
   
 Emscripten port of RARLab's open-source unrar library  
   
 # Changes  
-Compiled with unrar v5.8.5, support RAR 5 format.  
-Added WorkerFS version.  
+1. Compiled with unrar 5.9.2.   
+2. Added WorkerFS version.  
+3. Simple build.sh script.  
   
 # How to use  
 1. Visit http://wcchoi.github.io/libunrar-js/  
@@ -17,7 +17,7 @@ Added WorkerFS version.
   
 # Caveat  
 1. For non WorkerFS version everything is loaded to the memory so make sure you have enough free memory to hold BOTH the RAR file AND the decompressed content (although only the decompressed content will keep in memory after decompression) , otherwise your browser page may crash.  
-2. WorkerFS version 15x time slower with many small files.  
+2. WorkerFS version 3-15x time slower.  
 2. Slow, especially for password-protected RAR  
 3. Memory leak in IE, no problem in Chrome  
   
@@ -51,7 +51,7 @@ In case of multi-part RAR, it would be like this: [{name: 'test.part1.rar', cont
 # How to Compile  
 1. run  build.sh <path_to_emsdk(def ~)>  
   
-2. Result will be in dist folder
+2. Result will be in the dist folder
   
 # Licence  
 MIT, also see license.txt for the C code's license  
