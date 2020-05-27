@@ -7,10 +7,11 @@ console.log("Time taken to parse/load the lib: ", elapt)
 importScripts('rpc.js')
 var sender
 var proxy = {
-	unrar: function(data, password){
+	unrar: function(data, password,useWorker){
 		var cb = sender.progressShow
-	
-		var rarContent = readRARContent(data.map(function(d){return {name: d.name, content: new Uint8Array(d.content)}}), password, cb)
+		var rarContent;
+		if(useWorker==1) rarContent= readRARContentWorkerFS(data.map(function(d){return {name: d.name, content: d.content}}), password, cb);
+			else rarContent= readRARContent(data.map(function(d){return {name: d.name, content: new Uint8Array(d.content)}}), password, cb);
 		var transferables = []
 
 		var rec = function(entry) {
@@ -34,6 +35,6 @@ RPC.init(proxy).then(function(s){
 	sender = s
 })
 
-	
+
 
 

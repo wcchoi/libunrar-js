@@ -9,9 +9,11 @@
     <div id="loadStatus">Loading....</div>
     <div id="drop-zone">Drop RAR file(s) here</div><br>
 	Or select from here: <input type="file" id="file" name="file" multiple/><br><br>
-    Password: <input id="password"/><br>
-	<button id="unrarBtn">Unrar</button>
-    
+    Password: <input id="password"/><br><br>
+    Limit: <input id="Limit" value="300"/><br><br>
+	<button id="unrarBtn" onclick="startUnrar(0);">Unrar</button> &nbsp;&nbsp;
+    <button id="unrarBtnFS" onclick="startUnrar(1);">Unrar WORKERFS</button>
+
     <div id="output">
       <ul></ul>
     </div>
@@ -28,7 +30,7 @@
 	<!--polyfill for IE and older browser-->
 	<script src="Promise.min.js"></script>
 	<script src="download.js"></script>
-	
+
 	<script src="jszip.min.js"></script>
 	<script src="rpc.js"></script>
 <script>
@@ -49,7 +51,7 @@ var errShow = function(errMsg) {
 	document.querySelector("#loadStatus").innerHTML = "<strong>" + errMsg + "</strong>"
 }
 
-var startUnrar = function(){
+var startUnrar = function(useWorker){
 
 	// sort by name
 	filesToUnrar.sort(function(a, b){
@@ -60,22 +62,27 @@ var startUnrar = function(){
 
 	var buffers = []
 	var dataToPass = []
-	
+
 	var reader = new FileReader();
 	reader.onload = callback
-	
+
 	function callback(e) {
-		var data = e.target.result;
-		buffers.push(data)
-		dataToPass.push({name: filesToUnrar[cnt].name, content: data})
-		cnt += 1
-		if(cnt < filesToUnrar.length) {
-			//continue reading the next vol
-			document.querySelector("#loadStatus").innerHTML = "reading your file "+filesToUnrar[cnt].name
-			reader.readAsArrayBuffer(filesToUnrar[cnt]);
-			return
-		}
-		
+
+	    if(useWorker==1){
+	        for(cnt=0;cnt<filesToUnrar.length;cnt++) dataToPass.push({name: filesToUnrar[cnt].name, content: filesToUnrar[cnt]})
+        } else {
+            var data = e.target.result;
+            buffers.push(data)
+            dataToPass.push({name: filesToUnrar[cnt].name, content: data})
+            cnt += 1
+            if (cnt < filesToUnrar.length) {
+                //continue reading the next vol
+                document.querySelector("#loadStatus").innerHTML = "reading your file " + filesToUnrar[cnt].name
+                reader.readAsArrayBuffer(filesToUnrar[cnt]);
+                return
+            }
+        }
+
 		// all files finish reading
 		document.querySelector("#loadStatus").innerHTML = "finish reading files, start decompressing"
 		var password = document.querySelector("#password").value || null
@@ -84,7 +91,7 @@ var startUnrar = function(){
 		//worker.postMessage({data: data, password: password}, [data]) //transferable object
 		document.querySelector("#loadStatus").innerHTML = "decompressing"
 		rpc.transferables = buffers
-		rpc.unrar(dataToPass, password).then(function(ret){
+		rpc.unrar(dataToPass, password,useWorker).then(function(ret){
 			document.querySelector("#loadStatus").innerHTML = "Finish decompression, used " + ((Date.now() - startTime) / 1000).toFixed(2) + " s"
 			console.log(ret)
 
@@ -92,19 +99,21 @@ var startUnrar = function(){
 			rootListElem.innerHTML = "" //clear
 
 			var filesOnly = []
-			
+            var limit = parseInt(document.querySelector("#Limit").value , 10) || 0;
+
 			var rec = function(key, entry) {
 				var li = document.createElement("li")
 				if (entry.type === 'dir') {
 					var ul = document.createElement('ul')
-					Object.keys(entry.ls).forEach(function(k) {
+                    var keys = limit==0?Object.keys(entry.ls):Object.keys(entry.ls).slice(0,limit);
+                    keys.forEach(function(k) {
 						ul.appendChild(rec(k, entry.ls[k]))
 					})
 					li.appendChild(document.createTextNode(key))
 					li.appendChild(ul)
 				} else if (entry.type === 'file') {
 					filesOnly.push(entry)
-					
+
 					var a = document.createElement('a')
 					a.appendChild(document.createTextNode(entry.fullFileName))
 					var fn = entry.fullFileName.split('/').pop()
@@ -132,7 +141,7 @@ var startUnrar = function(){
 			Object.keys(ret.ls).forEach(function(k) {
 				rootListElem.appendChild(rec(k, ret.ls[k]))
 			})
-			
+
 			if(filesOnly.length > 1){
 				var lida = document.createElement('li')
 				var ada = document.createElement('a')
@@ -145,7 +154,7 @@ var startUnrar = function(){
 						filesOnly.forEach(function(e) {
 							zip.file(e.fullFileName, e.fileContent)
 						})
-						
+
 						var content = zip.generate({type:"blob"});
 						// see FileSaver.js
 						download(content, "all.zip");
@@ -158,11 +167,13 @@ var startUnrar = function(){
 			}
 		}).catch(errShow)
 	};
-	
+
 	var cnt = 0
 	if(filesToUnrar.length > 0){
-		document.querySelector("#loadStatus").innerHTML = "reading your file "+filesToUnrar[cnt].name
-		reader.readAsArrayBuffer(filesToUnrar[cnt]);
+		if(useWorker==1) callback(null); else {
+            document.querySelector("#loadStatus").innerHTML = "reading your file "+filesToUnrar[cnt].name
+		    reader.readAsArrayBuffer(filesToUnrar[cnt]);
+        }
 	} else {
 		errShow("No file selected")
 	}
@@ -198,16 +209,16 @@ dropzone.addEventListener('drop', function(event) {
 	if (files.length === 0) {
 		return false;
 	}
-	
+
 	// we want array not file list
 	filesToUnrar = []
 	for(var i = 0; i < files.length; i++){
 		filesToUnrar.push(files[i])
 	}
 	//filesToUnrar = files
-	
+
 	document.querySelector("#loadStatus").innerHTML = "Selected "+filesToUnrar[0].name
-	startUnrar()
+	//startUnrar()
 	return false
 });
 
@@ -223,7 +234,8 @@ var setFileBtn = function(evt){
 	document.querySelector("#loadStatus").innerHTML = "Click the unrar button"
 }
 document.getElementById('file').addEventListener('change', setFileBtn, false);
-document.getElementById('unrarBtn').addEventListener('click', startUnrar, false);
+//document.getElementById('unrarBtn').addEventListener('click', startUnrar, false);
+//document.getElementById('unrarBtnFS').addEventListener('click', startUnrar, false);
 </script>
 </body>
 </html>

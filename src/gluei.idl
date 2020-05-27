@@ -1,0 +1,24 @@
+interface  RARHeaderDataEx
+{
+  void RARHeaderDataEx();
+  
+  attribute DOMString      FileNameW;
+  attribute long long UnpSize;
+  attribute long long PackSize;
+  attribute unsigned long Flags;
+
+};
+
+callback UNRARCALLBACK = long(unsigned long msg, long UserData, long P1, long P2);
+
+interface RAROpenArchiveDataEx
+{
+  void RAROpenArchiveDataEx();
+  attribute DOMString ArcName;
+  attribute unsigned long  OpenMode;
+  attribute UNRARCALLBACK Callback;
+
+  attribute unsigned long  OpenResult;
+  attribute unsigned long  Flags;
+};
+

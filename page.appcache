@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# 2015-08-27 - update 1
+# 5/27/2020  v1.1.2
 index.html
 download.js
 jszip.min.js
@@ -7,7 +7,7 @@ libunrar.js
 Promise.min.js
 rpc.js
 worker.js
-libunrar.js.mem
+libunrar.wasm
 
 # Use from network if available
 NETWORK:
