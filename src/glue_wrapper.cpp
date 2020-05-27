@@ -1,9 +1,11 @@
-#include "dll.hpp" 
+#define _UNIX
+#include "dll.hpp"
+#undef _UNIX
 #include "rar.hpp"
 #include "glue.cpp"
 
 extern "C" {
-	
+
 char* EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_get_FileNameW_0(RARHeaderDataEx* self) {
   char s[1000]; s[0]=0;
   WideToChar(self->FileNameW,s,1000);
@@ -19,7 +21,7 @@ long long EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_get_UnpSize_0(RAR
 }
 
 long long EMSCRIPTEN_KEEPALIVE emscripten_bind_RARHeaderDataEx_get_PackSize_0(RARHeaderDataEx* self) {
-  return (long long) self->PackSizeHigh << 32 | self->PackSize; 
+  return (long long) self->PackSizeHigh << 32 | self->PackSize;
 }
 
 }

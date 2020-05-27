@@ -49,41 +49,9 @@ In case of multi-part RAR, it would be like this: [{name: 'test.part1.rar', cont
  **size_uncompressed**  
     
 # How to Compile  
-1. Install emscripten   https://emscripten.org/docs/getting_started/downloads.html  
+1. run  build.sh <path_to_emsdk(def ~)>  
   
-2. Activate PATH and other environment variables in the current terminal
-source ./emsdk_env.sh  
-  
-3. Unpack src/unrarsrc-5.8.5.tar.gz(original unrar sources) and add files from src folder. Two files (dll.hpp, uowners.cpp) was changed.  
-  
-4. generate glue.js & glue.cpp from gluei.idl  
-python ~/emsdk/upstream/emscripten/tools/webidl_binder.py gluei.idl glue  
-  
-5. attach _.js content to the end of glue.js. Rmove from glue.cpp functions that already defined in glue_wrapper.cpp  
-  
-6. compile  
-cat glue.js _.js > glue_r.js  
-emcc glue_wrapper.cpp rar.cpp strlist.cpp strfn.cpp pathfn.cpp smallfn.cpp global.cpp file.cpp filefn.cpp filcreat.cpp \  
-archive.cpp arcread.cpp unicode.cpp system.cpp isnt.cpp crypt.cpp crc.cpp rawread.cpp encname.cpp resource.cpp \  
-match.cpp timefn.cpp rdwrfn.cpp consio.cpp options.cpp errhnd.cpp rarvm.cpp secpassword.cpp rijndael.cpp getbits.cpp \  
-sha1.cpp sha256.cpp blake2s.cpp hash.cpp extinfo.cpp extract.cpp volume.cpp list.cpp find.cpp unpack.cpp headers.cpp \  
-threadpool.cpp rs16.cpp cmddata.cpp ui.cpp filestr.cpp scantree.cpp dll.cpp qopen.cpp \  
--s "EXPORTED_FUNCTIONS=['_RAROpenArchiveEx','_RARCloseArchive','_RARReadHeaderEx','_RARProcessFileW', '_RARSetPassword']" \  
--s EXTRA_EXPORTED_RUNTIME_METHODS=['addFunction','removeFunction','FS','UTF8ToString','stringToUTF8','ensureString','WORKERFS','mount','unmount'] \  
--o libunrar.js  --post-js glue_r.js -DRARDLL -s RESERVED_FUNCTION_POINTERS=20 -s NO_EXIT_RUNTIME=1  \  
--O3 -s ALLOW_MEMORY_GROWTH=1 --closure 1 -s ASSERTIONS=0 \  
--s WASM=1 -Wno-dangling-else -s FORCE_FILESYSTEM=1 -lworkerfs.js  
-cat pre.js libunrar.js wcchoi.js > res.js  
-mv res.js libunrar.js -f  
-  
-   
-//-s ALLOW_MEMORY_GROWTH=1 (for big archives)  
-  
-7. resulting libunrar.js wil contain:  pre.js + libunrar.js + (glue.js + _.js) + wcchoi.js  
-cat pre.js libunrar.js wcchoi.js > res.js  
-mv res.js libunrar.js -f  
-  
-8. use  libunrar.js & libunrar.wasm  
+2. Result will be in dist folder
   
 # Licence  
 MIT, also see license.txt for the C code's license  
